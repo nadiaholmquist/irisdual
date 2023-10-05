@@ -1,0 +1,30 @@
+name: Build Windows
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: UCRT64
+        pacboy: >-
+          cmake:p
+          toolchain:p
+          SDL2:p
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    - name: Build irisdual
+      run: |
+        cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+        cmake --build build
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: irisdual-${{ runner.os }}
+        path: build/bin/sdl/dual.exe
+        if-no-files-found: error
