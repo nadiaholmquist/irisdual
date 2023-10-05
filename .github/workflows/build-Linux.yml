@@ -1,0 +1,24 @@
+name: Build Linux
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    - name: Install dependencies
+      run: |
+        apt update
+        apt-get install -y libsdl2-dev cmake ninja-build
+    - name: Build irisdual
+      run: |
+        cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+        cmake --build build
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: irisdual-${{ runner.os }}
+        path: build/bin/sdl/dual
+        if-no-files-found: error
